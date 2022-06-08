@@ -15,6 +15,11 @@ def index():
 
     return render_template('home/index.html', segment='index')
 
+@blueprint.route('/jaco')
+@login_required
+def jaco():
+
+    return "Hello Jaco"
 
 @blueprint.route('/<template>')
 @login_required
