@@ -4,9 +4,11 @@ Copyright (c) 2019 - present AppSeed.us
 """
 
 from apps.home import blueprint
-from flask import render_template, request
+from flask import render_template, request, jsonify
 from flask_login import login_required
 from jinja2 import TemplateNotFound
+from apps import db
+from apps.authentication.models import Users, Posts, Tags
 
 
 @blueprint.route('/index')
@@ -19,7 +21,31 @@ def index():
 @login_required
 def jaco():
 
-    return "Hello Jaco"
+    # create a dummy post with tags
+    post = Posts(title='This is a test pest', body='test', user_id=1)
+    db.session.add(post)
+    db.session.commit()
+
+    tags = ['dog', 'test', 'cat', 'good food']
+
+    for tag in tags:
+        t = Tags(tag=tag, post_id=1)
+        db.session.add(t)
+        db.session.commit()
+
+    return "Hello Jaco boy"
+
+@blueprint.route('/show')
+@login_required
+def show():
+    # load the latest post from the database
+    post = Posts.query.filter_by(id=1).first()
+
+    # print the tags
+    print(post.tags)
+
+    return jsonify({'title': post.title, 'body': post.body, 'type': post.type, 'timestamp': post.timestamp, 'author': post.author.username, 'tags': [tag.tag for tag in post.tags]})
+
 
 @blueprint.route('/<template>')
 @login_required
